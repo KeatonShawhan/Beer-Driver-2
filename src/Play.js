@@ -1,11 +1,12 @@
 class Play extends Phaser.Scene {
     constructor(){
         super("playScene");
+
     }
 
     
     preload(){
-        // this.load.image('rocket', './assets/fasterspaceship.png');
+        //this.load.image('rocket', './assets/fasterspaceship.png');
         this.load.spritesheet('devilspritesheet', './assets/devilspritesheet.png', {
             frameWidth: 200,
         frameHeight: 200,
@@ -33,6 +34,7 @@ class Play extends Phaser.Scene {
         this.time.delayedCall(2500, () => {
             this.addlettuce();
         });
+        this.gameover = false;
 
         
         this.devil1 = new Devil(this, config.height/3, config.width/3.3, 'devilspritesheet', 0);
@@ -47,9 +49,24 @@ class Play extends Phaser.Scene {
         });
         this.devil1.play('devilrun');
 
+        let scoreConfig = {
+            fontFamily: 'Ancient Modern Tales',
+            fontSize: '30px',
+            // backgroundColor: '#F3B141',
+            color: '#a9ed69',
+            align: 'right',
+            padding: {
+              top: 5,
+              bottom: 5,
+            },
+            fixedWidth: 100
+          }
+
     
         keyUP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP)
         keyDOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN)
+        keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+
         let line1, line2, line3;
         line1 = config.height / 3;
         // line2 = config.height / 2;
@@ -62,18 +79,23 @@ class Play extends Phaser.Scene {
         let lane2 = new Phaser.Geom.Line(0, line2, config.width, line2);
         graphics.strokeLineShape(lane1);
         graphics.strokeLineShape(lane2);
+        this.playerscore = 0;
+        this.scoreDisplay = this.add.text(config.width/1.3, config.height/12, "Harvest: 0" , scoreConfig);
 
        
         
     }
 
     update(){
-        this.devil1.update()
-        this.physics.world.collide(this.devil1, this.blockgroup, this.blockcollision, null, this)
-        
-        this.physics.world.collide(this.devil1, this.lettucegroup, this.lettucecollision, null, this)
-        this.field.tilePositionX += 3;
-       
+        if (this.gameover){
+            this.scene.start('gameOverScene');
+        }
+        if (!this.gameover) {this.devil1.update()
+            this.physics.world.collide(this.devil1, this.blockgroup, this.blockcollision, null, this)
+            this.physics.world.collide(this.devil1, this.lettucegroup, this.lettucecollision, null, this)
+            this.field.tilePositionX += 3;
+        }
+
 
     }
 
@@ -104,11 +126,18 @@ class Play extends Phaser.Scene {
 
     blockcollision(){
         console.log("collided")
+        this.gameover = true;
     }
 
     lettucecollision(player, weed){
         weed.destroy();
+
         console.log("smoke za");
+        this.playerscore+=weed.score;
+        console.log(this.playerscore);
+
+        this.scoreDisplay.text = ("Harvest: " +this.playerscore);
+
     }
 
 

@@ -8,11 +8,12 @@ class Lettuce extends Phaser.Physics.Arcade.Sprite{
         this.parentScene.physics.add.existing(this);
         this.setVelocityX(velocity);
         this.spawed = true;
-    }
+        this.score = 1;
 
-    
+    }
+   
     update(){
-            if (this.spawed && this.x < config.width/1.5 ){
+            if (this.spawed && this.x < config.width/1.5){
             console.log("spawed");
             this.parentScene.addlettuce(this.parent, this.velocity);
             this.spawed = false;

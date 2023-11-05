@@ -10,8 +10,12 @@ let config = {
         arcade: {
             debug: true,
         }
+
     },
-    scene: [Play]
+    render:{
+        pixelArt: true
+    },
+    scene: [Title, Play, GameOver]
 }
 let game = new Phaser.Game(config);
-let keyUP, keyDOWN;
+let keyUP, keyDOWN, keyR;   
