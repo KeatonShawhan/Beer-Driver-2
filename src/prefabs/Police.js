@@ -1,4 +1,4 @@
-class Block extends Phaser.Physics.Arcade.Sprite {
+class Police extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y , texure, velocity){
         
         super(scene, x , y,  texure);
@@ -16,8 +16,8 @@ class Block extends Phaser.Physics.Arcade.Sprite {
 
     update(){
         if (!this.spawned && this.x < config.width/1.5){
-            
-            this.parentScene.addblock(this.parent, this.velocity);
+            console.log("added")
+            this.parentScene.addpolice(this.parent, this.velocity);
             this.spawned = true;
 
 
