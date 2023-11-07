@@ -23,14 +23,21 @@ class Title extends Phaser.Scene {
           this.cursors = this.input.keyboard.createCursorKeys();  
 
           this.field= this.add.tileSprite(0,0, config.width, config.height,  'titlescreen').setOrigin(0,0);
-          this.instructions = this.add.text(config.width/9, config.height/1.7, "Press the UP and DOWN arrow keys to dodge obstacles and collect your harvest!", titleConfig).setOrigin(0,0);
-          this.startgame = this.add.text(config.width/3, config.height/1.4, "Press the UP arrow key to start!", titleConfig).setOrigin(0,0);
+          this.instructions = this.add.text(config.width/9.5, config.height/1.7, "Press the UP and DOWN arrow keys to dodge obstacles and collect your harvest!", titleConfig).setOrigin(0,0);
+          this.dodge = this.add.text(config.width/9.5, config.height/1.3, "Press the RIGHT arrow key for credits!", titleConfig).setOrigin(0,0);
+
+          this.startgame = this.add.text(config.width/1.9, config.height/1.3, "   Press the UP arrow key to start!", titleConfig).setOrigin(0,0);
     }
 
     update(){
         if (Phaser.Input.Keyboard.JustDown(this.cursors.up)){
             this.scene.start('playScene');
         }
+        if (Phaser.Input.Keyboard.JustDown(this.cursors.right)){
+            this.scene.start('creditsScene');
+        }
+
+
     }
 
 

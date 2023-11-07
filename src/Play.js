@@ -8,18 +8,22 @@ class Play extends Phaser.Scene {
     
     preload(){
         //this.load.image('rocket', './assets/fasterspaceship.png');
-        this.load.spritesheet('devilspritesheet', './assets/devilspritesheet.png', {
-            frameWidth: 200,
-        frameHeight: 200,
-        });
+        // this.load.spritesheet('devilspritesheet', './assets/devilspritesheet.png', {
+        //     frameWidth: 200,
+        // frameHeight: 200,
+        // });
         this.load.image('rock', './assets/rock.png');
+        this.load.atlas('devilspritesheet', './assets/deviltexuresheet.png', './assets/devilss.json')
         this.load.image('weed', './assets/weed.png');
         this.load.image('background', "./assets/devilsharvest.jpg")
-        this.load.image('police', './assets/fasterspaceship.png');
+        this.load.image('police', './assets/police.png');
         this.load.image('hearts', './assets/hearts.png');
         this.load.audio('backgroundsound', ['./assets/background.mp3']);
         this.load.audio('pickup', ['./assets/pickup.mp3']);
         this.load.audio('damage', ['./assets/hurt.mp3']);
+        this.load.audio('popodamage' , ['./assets/policehit.mp3'])
+        this.load.audio('death' , ['./assets/death.mp3'])
+
         this.load.image('prebar', './assets/basicbar.png');
         this.load.image('postbar', './assets/filledbar.png');
 
@@ -52,6 +56,24 @@ class Play extends Phaser.Scene {
             loop: false
 
         });
+
+        this.policedamagem = this.sound.add('popodamage', {
+            mute:false,
+            volume:10,
+            rate:1,
+            loop: false
+
+        });
+
+        this.deathm = this.sound.add('death', {
+            mute:false,
+            volume:10,
+            rate:1,
+            loop: false
+
+        });
+
+
         
         
         
@@ -74,7 +96,7 @@ class Play extends Phaser.Scene {
         });
 
         this.time.addEvent({
-            delay: 25000, // Delay in milliseconds
+            delay: 25000,
             callback: () => {
                 if (this.playerscore > 15) {
                     this.addpolice();
@@ -83,7 +105,7 @@ class Play extends Phaser.Scene {
                 }
             },
             callbackScope: this,
-            loop: true, // Set to true to make it repeat
+            loop: true, 
         });
 
         this.time.delayedCall(2500, () => {
@@ -94,26 +116,25 @@ class Play extends Phaser.Scene {
         this.healthbar = this.add.sprite(80, 35, 'hearts');
         
         this.time.addEvent({
-            delay: 9, // Delay in milliseconds
+            delay: 9, 
             callback: () => {
                 const maskWidth = this.healthbar.displayWidth * (this.playerHealth / 3); // Adjust as needed
                 const mask = this.make.graphics();
-                mask.fillStyle(0x000000); // Color of the mask (e.g., black)
+                mask.fillStyle(0x000000); 
                 mask.fillRect(0, 0, maskWidth, this.healthbar.displayHeight);
                 this.healthbar.setMask(mask.createGeometryMask());
             },
             callbackScope: this,
-            loop: true, // Set to true to make it repeat
+            loop: true, 
         });
 
 
         this.emptyBar = this.add.sprite(80, 80, 'prebar');
         this.filledBar = this.add.sprite(80, 80, 'postbar');
         this.mask = this.make.graphics();
-        this.mask.fillStyle(0xffffff); // Set the mask color (white)
-        this.mask.fillRect(0, 0, 0, this.filledBar.height); // Initialize the mask width to 0
+        this.mask.fillStyle(0xffffff); 
+        this.mask.fillRect(0, 0, 0, this.filledBar.height); 
         this.filledBar.setMask(this.mask.createGeometryMask());
-        // The maximum points that will fill the bar
         
 
 
@@ -121,17 +142,20 @@ class Play extends Phaser.Scene {
 
         
         this.devil1 = new Devil(this, config.height/3, config.width/3.3, 'devilspritesheet', 0);
-        this.devil1.setBodySize(this.devil1.width / 2, this.devil1.height / 2, this.devil1.width / 4, this.devil1.height / 4);
+        this.devil1.setBodySize(this.devil1.width / 3, this.devil1.height / 3, this.devil1.width / 3, this.devil1.height / 3);
 
         this.anims.create({
             key: 'devilrun',
-            frames: this.anims.generateFrameNumbers('devilspritesheet', {
-                start: 0,
-                end: 4,
-            }),
+            frames: [
+                { key: 'devilspritesheet', frame: 'f' },
+                { key: 'devilspritesheet', frame: 's' },
+                { key: 'devilspritesheet', frame: 'third' },
+                { key: 'devilspritesheet', frame: 'fourth' },
+                { key: 'devilspritesheet', frame: 'fifth' },
+            ],
             frameRate: 8,
             repeat: -1,
-        });
+        }); 
         this.devil1.play('devilrun');
 
         let scoreConfig = {
@@ -177,7 +201,8 @@ class Play extends Phaser.Scene {
 
     update(){
         if (this.gameover){
-            this.scene.start('gameOverScene');
+            console.log(this.scoredup);
+            this.scene.start('gameOverScene', this.scoredup);
         }
        
        
@@ -232,7 +257,7 @@ class Play extends Phaser.Scene {
         let spawnloc = [loc1, loc2, loc3];
         let police = new Police(this, config.width-10, spawnloc[ran] , "police", -100)
         police.getBounds()
-        police.setBodySize(police.width / 2, police.height / 2, police.width / 4, police.height / 4);
+        police.setBodySize(police.width / 3, police.height / 3, police.width / 4, police.height / 4);
 
         this.policegroup.add(police);
     }
@@ -253,6 +278,8 @@ class Play extends Phaser.Scene {
         if (this.playerHealth <= 1){
             this.gameover = true;
             this.bgm.pause();
+            this.deathm.play();
+
         } else{
             this.playerHealth--;
             block.destroy();
@@ -261,11 +288,12 @@ class Play extends Phaser.Scene {
         
     }
     policecollision(player, police){
-        this.damagem.play()
+        this.policedamagem.play()
 
         if (this.playerHealth <= 1){
         this.gameover = true;
             this.bgm.pause();
+            this.deathm.play();
         } else{
             this.playerHealth--;
             police.destroy();
@@ -280,7 +308,6 @@ class Play extends Phaser.Scene {
         const maxPoints = 10; 
         const maskWidth = (this.playerscore / maxPoints) * this.filledBar.width; // Calculate the mask width
 
-        // Update the mask width to fill the bar based on the player's points
         this.mask.clear();
         this.mask.fillStyle(0xffffff); // Set the mask color (white)
         this.mask.fillRect(0, 0, maskWidth, this.filledBar.height);
