@@ -6,6 +6,7 @@ fill amounts of the hearts whenever I lost them, and also the use of masking in 
 the bar. I also made it so the bar acts like a 4th heart if its filled and you have three hearts. I did this by checking
 a few conditions, and then if the bar was full and the player had 3 hearts, the bar would 
 be stored until the player lost a life, and then reset, leaving the player with full hearts
+Its in the play.js where I set up a mask
 
 As for the creative tilt, I think I am most proud how the health system works. Since you can lose a heart anytime you bump
 into something, at the end that would get too broken if there were only three chances. 
