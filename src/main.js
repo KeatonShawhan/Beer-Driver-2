@@ -18,6 +18,7 @@ art style came togther, especially as this was the first time I have ever made
 my own assets. 
 */
 
+
 let config = {
     type: Phaser.AUTO,
     height: 500,

@@ -1,4 +1,3 @@
-
 class Play extends Phaser.Scene {
     constructor(){
         super("playScene");
@@ -7,15 +6,12 @@ class Play extends Phaser.Scene {
 
     
     preload(){
-        //this.load.image('rocket', './assets/fasterspaceship.png');
-        // this.load.spritesheet('devilspritesheet', './assets/devilspritesheet.png', {
-        //     frameWidth: 200,
-        // frameHeight: 200,
-        // });
         this.load.image('rock', './assets/rock.png');
         this.load.atlas('devilspritesheet', './assets/deviltexuresheet.png', './assets/devilss.json')
+        this.load.spritesheet('car', './assets/car.png', { frameWidth: 37, frameHeight: 18 });
         this.load.image('weed', './assets/weed.png');
-        this.load.image('background', "./assets/devilsharvest.jpg")
+        this.load.image('background', "./assets/background.png")
+        this.load.image('foreground', "./assets/foreground.png")
         this.load.image('police', './assets/police.png');
         this.load.image('hearts', './assets/hearts.png');
         this.load.audio('backgroundsound', ['./assets/background.mp3']);
@@ -27,12 +23,24 @@ class Play extends Phaser.Scene {
         this.load.image('prebar', './assets/basicbar.png');
         this.load.image('postbar', './assets/filledbar.png');
 
-
-
     }
 
     create(){
-        this.field= this.add.tileSprite(0,0, config.width, config.height,  'background').setOrigin(0,0);
+
+        const imageWidth = 256;
+        const imageHeight = 144;
+      
+        // Calculate scale factors
+        const scaleX = config.width / imageWidth;
+        const scaleY = config.height / imageHeight;
+      
+        // Choose the smaller scale factor to fit image within bounds
+        const scale = Math.min(scaleX, scaleY);
+      
+        this.cityB = this.add.tileSprite(0, 50, imageWidth, imageHeight, 'background').setOrigin(0, 0).setScale(scale);
+
+        this.cityF = this.add.tileSprite(0, 50, imageWidth, imageHeight, 'foreground').setOrigin(0, 0).setScale(scale);
+
         this.bgm = this.sound.add('backgroundsound', { 
             mute: false,
             volume: 1,
@@ -136,22 +144,20 @@ class Play extends Phaser.Scene {
         this.mask.fillRect(0, 0, 0, this.filledBar.height); 
         this.filledBar.setMask(this.mask.createGeometryMask());
         
-        this.devil1 = new Devil(this, config.height/3, config.width/3.3, 'devilspritesheet', 0);
-        this.devil1.setBodySize(this.devil1.width / 3, this.devil1.height / 3, this.devil1.width / 3, this.devil1.height / 3);
+        this.car = new Car(this, config.height/3, config.width/2, 'car', 0);
+        this.car.setScale(2);
+        this.car.setBodySize(this.car.width / 3, this.car.height / 3, this.car.width / 3, this.car.height / 3);
 
         this.anims.create({
-            key: 'devilrun',
+            key: 'carmove',
             frames: [
-                { key: 'devilspritesheet', frame: 'f' },
-                { key: 'devilspritesheet', frame: 's' },
-                { key: 'devilspritesheet', frame: 'third' },
-                { key: 'devilspritesheet', frame: 'fourth' },
-                { key: 'devilspritesheet', frame: 'fifth' },
+                { key: 'car', frame: 0 },
+                { key: 'car', frame: 1 },
             ],
-            frameRate: 8,
+            frameRate: 5,
             repeat: -1,
         }); 
-        this.devil1.play('devilrun');
+        this.car.play('carmove');
 
         let scoreConfig = {
             fontFamily: 'Ancient Modern Tales',
@@ -191,7 +197,18 @@ class Play extends Phaser.Scene {
         }
 
        
-
+        this.dizzinessLevel = 0;
+        this.dizzinessWobble = 0; // Tracks the sway angle
+        
+        // Set up a looping tween for the wobble
+        this.wobbleTween = this.tweens.add({
+            targets: this.cameras.main,
+            angle: { from: -2, to: 2 }, // Tilt angle range for wobble
+            duration: 500, // Time for one side of the wobble
+            yoyo: true,
+            repeat: -1
+        });
+        
 
       //add button that says BEER ME
 
@@ -200,8 +217,20 @@ class Play extends Phaser.Scene {
       beerMeButton.setInteractive();
 
       beerMeButton.on('pointerdown', () => {
-          console.log("BEER ME");
-      });
+        console.log("BEER ME");
+    
+        // Increase dizziness level
+        this.dizzinessLevel++;
+    
+        // Intensify wobble angle and camera shake with each press
+        this.cameras.main.shake(100, 0.005 * this.dizzinessLevel); // Slight shake
+        this.wobbleTween.timeScale = 1 + (this.dizzinessLevel * 0.1); // Increase wobble speed
+    
+        // Add blur effect by adjusting zoom and slight offset
+        this.cameras.main.scrollX += Phaser.Math.Between(-5, 5);
+        this.cameras.main.scrollY += Phaser.Math.Between(-3, 3);
+    });
+    
         
     }
 
@@ -215,12 +244,27 @@ class Play extends Phaser.Scene {
         if (!this.gameover) {
             // Handle devil movement with 2x:1y ratio
     
-            this.devil1.update();
-            this.physics.world.collide(this.devil1, this.blockgroup, this.blockcollision, null, this);
-            this.physics.world.collide(this.devil1, this.lettucegroup, this.lettucecollision, null, this);
-            this.physics.world.collide(this.devil1, this.policegroup, this.policecollision, null, this);
+
+            if (this.dizzinessLevel > 0) {
+                // Random drift effect, scaling with dizziness level
+                this.car.x += Phaser.Math.Between(-1, 1) * this.dizzinessLevel * 0.3;
+                this.car.y += Phaser.Math.Between(-1, 1) * this.dizzinessLevel * 0.3;
+            
+                // Add a slight delay in response to user input for a 'laggy' feel
+                if (keyUP.isDown && Phaser.Math.FloatBetween(0, 1) < 0.95) { // Random chance to not respond
+                    this.car.y -= 2;
+                } else if (keyDOWN.isDown && Phaser.Math.FloatBetween(0, 1) < 0.95) {
+                    this.car.y += 2;
+                }
+            }
+            
+            this.car.update();
+            this.physics.world.collide(this.car, this.blockgroup, this.blockcollision, null, this);
+            this.physics.world.collide(this.car, this.lettucegroup, this.lettucecollision, null, this);
+            this.physics.world.collide(this.car, this.policegroup, this.policecollision, null, this);
     
-            //this.field.tilePositionX += 3;
+            this.cityF.tilePositionX += 1;
+            this.cityB.tilePositionX += 0.1;
         }
     }
 

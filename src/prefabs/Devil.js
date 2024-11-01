@@ -1,4 +1,4 @@
-class Devil extends Phaser.Physics.Arcade.Sprite{
+class Car extends Phaser.Physics.Arcade.Sprite{
     constructor(scene, x, y, texure, frame){
         super(scene, x, y, texure, frame);
         this.parentScene = scene; 
