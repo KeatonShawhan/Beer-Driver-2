@@ -136,11 +136,6 @@ class Play extends Phaser.Scene {
         this.mask.fillRect(0, 0, 0, this.filledBar.height); 
         this.filledBar.setMask(this.mask.createGeometryMask());
         
-
-
-        
-
-        
         this.devil1 = new Devil(this, config.height/3, config.width/3.3, 'devilspritesheet', 0);
         this.devil1.setBodySize(this.devil1.width / 3, this.devil1.height / 3, this.devil1.width / 3, this.devil1.height / 3);
 
@@ -196,27 +191,37 @@ class Play extends Phaser.Scene {
         }
 
        
+
+
+      //add button that says BEER ME
+
+      let beerMeButton = this.add.text(config.width / 2, config.height / 2, "BEER ME", scoreConfig).setOrigin(0.5);
+      //everytime you press the button, the console prints "BEER ME"
+      beerMeButton.setInteractive();
+
+      beerMeButton.on('pointerdown', () => {
+          console.log("BEER ME");
+      });
         
     }
 
-    update(){
-        if (this.gameover){
+
+    update() {
+        if (this.gameover) {
             console.log(this.scoredup);
             this.scene.start('gameOverScene', this.scoredup);
         }
-       
-       
-
+    
         if (!this.gameover) {
-            this.devil1.update()
-            this.physics.world.collide(this.devil1, this.blockgroup, this.blockcollision, null, this)
-            this.physics.world.collide(this.devil1, this.lettucegroup, this.lettucecollision, null, this)
-            this.physics.world.collide(this.devil1, this.policegroup, this.policecollision, null, this)
-
-            this.field.tilePositionX += 3;
+            // Handle devil movement with 2x:1y ratio
+    
+            this.devil1.update();
+            this.physics.world.collide(this.devil1, this.blockgroup, this.blockcollision, null, this);
+            this.physics.world.collide(this.devil1, this.lettucegroup, this.lettucecollision, null, this);
+            this.physics.world.collide(this.devil1, this.policegroup, this.policecollision, null, this);
+    
+            //this.field.tilePositionX += 3;
         }
-
-
     }
 
     addblock(){

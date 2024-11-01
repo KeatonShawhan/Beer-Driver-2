@@ -13,15 +13,18 @@ class Devil extends Phaser.Physics.Arcade.Sprite{
     
     update(){
        
-        
-        if (Phaser.Input.Keyboard.JustDown(keyUP) && this.y >= config.height / 3) {
-            console.log("up pressed")
-            this.y-= config.height/5*1.7;
-        }
+        const moveSpeedX = 2;
+        const moveSpeedY = 1;
 
-        if (Phaser.Input.Keyboard.JustDown(keyDOWN) && this.y < config.height /3 * 2){
-            console.log("down pressed");
-            this.y+=config.height/5*1.7;
+        if (keyUP.isDown) {
+            // Move the devil up and right when key is held down
+            this.x += moveSpeedX;
+            this.y -= moveSpeedY;
+        } 
+        if(keyDOWN.isDown) {
+            // Move back in reverse direction when key is released
+            this.x -= moveSpeedX;
+            this.y += moveSpeedY;
         }
     }
 

@@ -16,11 +16,7 @@ you a chance to get a life back, or hold that bar until you do lose a life.
 I am also proud, even though the animation doesnt look great, of how the whole
 art style came togther, especially as this was the first time I have ever made
 my own assets. 
-
-
-
 */
-
 
 let config = {
     type: Phaser.AUTO,
