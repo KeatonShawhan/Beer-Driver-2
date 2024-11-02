@@ -208,16 +208,22 @@ class Play extends Phaser.Scene {
             yoyo: true,
             repeat: -1
         });
+
+        if (!this.fog) {
+            this.fog = new Fog(this, 0, 0, config.width, config.height);
+        }
         
 
       //add button that says BEER ME
+    
+       
 
       let beerMeButton = this.add.text(config.width / 2, config.height / 2, "BEER ME", scoreConfig).setOrigin(0.5);
       //everytime you press the button, the console prints "BEER ME"
-      beerMeButton.setInteractive();
-
+      beerMeButton.setInteractive({ useHandCursor: true })
       beerMeButton.on('pointerdown', () => {
         console.log("BEER ME");
+        this.fog.increaseFog();
     
         // Increase dizziness level
         this.dizzinessLevel++;
