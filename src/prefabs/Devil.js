@@ -21,7 +21,6 @@ class Car extends Phaser.Physics.Arcade.Sprite{
             if (this.y + moveSpeedY < 280){
               return;
             }
-            console.log(this.x, this.y)
             this.x += moveSpeedX;
             this.y -= moveSpeedY;
         } 
