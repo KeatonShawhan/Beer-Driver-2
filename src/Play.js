@@ -256,14 +256,16 @@ class Play extends Phaser.Scene {
 
             if (this.dizzinessLevel > 0) {
                 // Random drift effect, scaling with dizziness level
-                this.car.x += Phaser.Math.Between(-1, 1) * this.dizzinessLevel * 0.3;
-                this.car.y += Phaser.Math.Between(-1, 1) * this.dizzinessLevel * 0.3;
+                // this.car.x += Phaser.Math.Between(-1, 1) * this.dizzinessLevel * 0.3;
+                // this.car.y += Phaser.Math.Between(-1, 1) * this.dizzinessLevel * 0.3;
+
+                this.car.y = Phaser.Math.Clamp(this.car.y + temp, 280, 430);
             
                 // Add a slight delay in response to user input for a 'laggy' feel
                 if (keyUP.isDown && Phaser.Math.FloatBetween(0, 1) < 0.95) { // Random chance to not respond
-                    this.car.y -= 2;
+                    this.car.y = Phaser.Math.Clamp(this.car.y - 2, 280, 430);;
                 } else if (keyDOWN.isDown && Phaser.Math.FloatBetween(0, 1) < 0.95) {
-                    this.car.y += 2;
+                    this.car.y = Phaser.Math.Clamp(this.car.y + 2, 280, 430);
                 }
             }
             
