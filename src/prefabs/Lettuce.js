@@ -1,4 +1,4 @@
-class Lettuce extends Phaser.Physics.Arcade.Sprite{
+class Water extends Phaser.Physics.Arcade.Sprite{
     constructor(scene, x, y, texure, velocity){
         super(scene, x, y, texure);
         this.parentScene = scene; 
@@ -15,7 +15,7 @@ class Lettuce extends Phaser.Physics.Arcade.Sprite{
     update(){
             if (this.spawed && this.x < config.width/1.5){
             console.log("spawed");
-            this.parentScene.addlettuce(this.parent, this.velocity);
+            this.parentScene.addwater(this.parent, this.velocity);
             this.spawed = false;
 
         }

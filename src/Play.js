@@ -9,7 +9,7 @@ class Play extends Phaser.Scene {
         this.load.image('rock', './assets/rock.png');
         this.load.atlas('devilspritesheet', './assets/deviltexuresheet.png', './assets/devilss.json')
         this.load.spritesheet('car', './assets/car.png', { frameWidth: 37, frameHeight: 18 });
-        this.load.image('weed', './assets/weed.png');
+        this.load.image('water', './assets/water.png');
         this.load.image('background', "./assets/background.png")
         this.load.image('foreground', "./assets/foreground.png")
         this.load.image('police', './assets/police.png');
@@ -91,7 +91,7 @@ class Play extends Phaser.Scene {
             runChildUpdate: true
         })
 
-        this.lettucegroup = this.add.group({
+        this.watergroup = this.add.group({
             runChildUpdate: true
         })
 
@@ -117,7 +117,7 @@ class Play extends Phaser.Scene {
         });
 
         this.time.delayedCall(2500, () => {
-            this.addlettuce();
+            this.addwater();
         });
         this.playerHealth = 3;
         this.gameover = false;
@@ -191,13 +191,14 @@ class Play extends Phaser.Scene {
         this.playerscore = 0;
         this.scoredup = 0;
 
-        this.scoreDisplay = this.add.text(config.width/1.2, config.height/12, "Harvest: 0" , scoreConfig);
+        this.scoreDisplay = this.add.text(config.width/1.2, config.height/12, "Beers: 0" , scoreConfig);
         if (this.playerscore == 1){
             console.log("heyy");
         }
 
        
         this.dizzinessLevel = 0;
+        this.beers = 0;
         this.dizzinessWobble = 0; // Tracks the sway angle
         
         // Set up a looping tween for the wobble
@@ -227,7 +228,9 @@ class Play extends Phaser.Scene {
     
         // Increase dizziness level
         this.dizzinessLevel++;
-    
+        this.beers ++;
+        this.scoreDisplay.text = ("Beers: " +this.beers);
+
         // Intensify wobble angle and camera shake with each press
         this.cameras.main.shake(100, 0.005 * this.dizzinessLevel); // Slight shake
         this.wobbleTween.timeScale = 1 + (this.dizzinessLevel * 0.1); // Increase wobble speed
@@ -244,7 +247,7 @@ class Play extends Phaser.Scene {
     update() {
         if (this.gameover) {
             console.log(this.scoredup);
-            this.scene.start('gameOverScene', this.scoredup);
+            this.scene.start('gameOverScene', this.beers);
         }
     
         if (!this.gameover) {
@@ -253,23 +256,20 @@ class Play extends Phaser.Scene {
 
             if (this.dizzinessLevel > 0) {
                 // Random drift effect, scaling with dizziness level
-                const temp = Phaser.Math.Between(-1, 1) * this.dizzinessLevel * 0.3;
-                
-                // Update car.y with temp, but ensure it stays within 280 and 430
-                this.car.y = Phaser.Math.Clamp(this.car.y + temp, 280, 430);
-
+                this.car.x += Phaser.Math.Between(-1, 1) * this.dizzinessLevel * 0.3;
+                this.car.y += Phaser.Math.Between(-1, 1) * this.dizzinessLevel * 0.3;
+            
                 // Add a slight delay in response to user input for a 'laggy' feel
-                if (keyUP.isDown && Phaser.Math.FloatBetween(0, 1) < 0.95) {
-                    //this.car.x += temp;
-                    this.car.y = Phaser.Math.Clamp(this.car.y - 2, 280, 430);
+                if (keyUP.isDown && Phaser.Math.FloatBetween(0, 1) < 0.95) { // Random chance to not respond
+                    this.car.y -= 2;
                 } else if (keyDOWN.isDown && Phaser.Math.FloatBetween(0, 1) < 0.95) {
-                    this.car.y = Phaser.Math.Clamp(this.car.y + 2, 280, 430);
+                    this.car.y += 2;
                 }
             }
             
             this.car.update();
             this.physics.world.collide(this.car, this.blockgroup, this.blockcollision, null, this);
-            this.physics.world.collide(this.car, this.lettucegroup, this.lettucecollision, null, this);
+            this.physics.world.collide(this.car, this.watergroup, this.watercollision, null, this);
             this.physics.world.collide(this.car, this.policegroup, this.policecollision, null, this);
     
             this.cityF.tilePositionX += 1;
@@ -286,14 +286,17 @@ class Play extends Phaser.Scene {
       let randomY = Phaser.Math.Between(minY, maxY);
       
       // Spawn the block at the random Y position
-      let block = new Block(this, config.width - 10, randomY, 'rock', -100);
+      let block = new Block(this, config.width - 10, randomY, 'car', -100);
       block.getBounds();
-      block.setBodySize(block.width / 2, block.height / 2, block.width / 4, block.height / 4);
-  
+      block.setBodySize(block.width, block.height, block.width / 4, block.height / 4);
+      let randomTint = Phaser.Display.Color.RandomRGB().color;
+      block.setTint(randomTint);
+      block.setScale(2);
+
       this.blockgroup.add(block);
   }
   
-  addlettuce() {
+  addwater() {
       // Set Y boundaries
       const minY = 280;
       const maxY = 430;
@@ -301,12 +304,12 @@ class Play extends Phaser.Scene {
       // Generate a random Y position within the range
       let randomY = Phaser.Math.Between(minY, maxY);
   
-      // Spawn the lettuce at the random Y position
-      let lettuce = new Lettuce(this, config.width - 10, randomY, 'weed', -90);
-      lettuce.getBounds();
-      lettuce.setBodySize(lettuce.width / 2, lettuce.height / 2, lettuce.width / 4, lettuce.height / 4);
+      // Spawn the water at the random Y position
+      let water = new Water(this, config.width - 10, randomY, 'water', -90);
+      water.getBounds();
+      water.setBodySize(water.width / 2, water.height / 2, water.width / 4, water.height / 4);
   
-      this.lettucegroup.add(lettuce);
+      this.watergroup.add(water);
   }
   
   addpolice() {
@@ -363,18 +366,20 @@ class Play extends Phaser.Scene {
     }
 }
 
-    lettucecollision(player, weed){
-        weed.destroy();
+    watercollision(player, water){
+        water.destroy();
+        this.fog.decreaseFog();
         this.pickupm.play();
-        this.scoredup+=weed.score;
-        this.playerscore+=weed.score;
+        this.scoredup+=water.score;
+        this.playerscore+=water.score;
         const maxPoints = 10; 
         const maskWidth = (this.playerscore / maxPoints) * this.filledBar.width; // Calculate the mask width
 
         this.mask.clear();
         this.mask.fillStyle(0xffffff); // Set the mask color (white)
         this.mask.fillRect(0, 0, maskWidth, this.filledBar.height);
-
+        this.dizzinessLevel -= .5;
+        this.dizzinessWobble -= .5;
         if (this.playerscore >= maxPoints && this.playerHealth != 3 ){
             console.log("we are here baby");
             this.playerHealth++;
@@ -385,7 +390,6 @@ class Play extends Phaser.Scene {
         console.log("smoke za");
         
 
-        this.scoreDisplay.text = ("Harvest: " +this.scoredup);
 
     }
 

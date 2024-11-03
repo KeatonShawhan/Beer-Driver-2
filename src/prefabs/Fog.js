@@ -38,6 +38,29 @@ class Fog extends Phaser.GameObjects.Rectangle {
             this.scaleFactor = Math.min(this.scaleFactor, this.maxScaleFactor);
         }
     }
+
+    decreaseFog() {
+        // Increase the intensity up to max
+        if (this.intensity < this.maxIntensity) {
+            this.intensity -= this.intensityStep;
+            this.intensity = Math.min(this.intensity, this.maxIntensity); // Clamp to max
+            console.log(this.intensity);
+            this.scene.tweens.add({
+                targets: this,
+                alpha: this.intensity,
+                scaleX: this.scaleFactor,
+                scaleY: this.scaleFactor,
+                duration: 500,
+                ease: 'Linear'
+            });
+        }
+
+        // Scale the fog object to enlarge it over the screen
+        if (this.scaleFactor < this.maxScaleFactor) {
+            this.scaleFactor += this.scaleStep;
+            this.scaleFactor = Math.min(this.scaleFactor, this.maxScaleFactor);
+        }
+    }
     
     resetFog() {
         this.intensity = 0.1;
