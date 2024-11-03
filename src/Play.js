@@ -274,48 +274,53 @@ class Play extends Phaser.Scene {
         }
     }
 
-    addblock(){
-        let loc1 , loc2, loc3; 
-        loc1 = config.height/2+config.height/3
-        loc2 = config.height/2;
-        loc3 = config.height/2-config.height/3;
-        let ran = Math.round(Math.random() * 100 % 2)
-        let spawnloc = [loc1, loc2, loc3];
-        console.log(spawnloc[ran], ran)
-        let block = new Block(this, config.width-10  , spawnloc[ran],   'rock', -100);
-        block.getBounds()
-        block.setBodySize(block.width / 2, block.height / 2, block.width / 4, block.height / 4);
-
-        this.blockgroup.add(block);
-    }
-
-    addlettuce(){
-        let loc1 , loc2, loc3; 
-        loc1 = config.height/2+config.height/3
-        loc2 = config.height/2;
-        loc3 = config.height/2-config.height/3;
-        let ran = Math.round(Math.random() * 100 % 2)
-        let spawnloc = [loc1, loc2, loc3];
-        let lettuce = new Lettuce(this, config.width-10, spawnloc[ran] , "weed", -90)
-        lettuce.getBounds()
-        lettuce.setBodySize(lettuce.width / 2, lettuce.height / 2, lettuce.width / 4, lettuce.height / 4);
-
-        this.lettucegroup.add(lettuce);
-    }
-
-    addpolice(){
-        let loc1 , loc2, loc3; 
-        loc1 = config.height/2+config.height/3
-        loc2 = config.height/2;
-        loc3 = config.height/2-config.height/3;
-        let ran = Math.round(Math.random() * 100 % 2)
-        let spawnloc = [loc1, loc2, loc3];
-        let police = new Police(this, config.width-10, spawnloc[ran] , "police", -100)
-        police.getBounds()
-        police.setBodySize(police.width / 3, police.height / 3, police.width / 4, police.height / 4);
-
-        this.policegroup.add(police);
-    }
+    addblock() {
+      // Set Y boundaries
+      const minY = 280;
+      const maxY = 430;
+      
+      // Generate a random Y position within the range
+      let randomY = Phaser.Math.Between(minY, maxY);
+      
+      // Spawn the block at the random Y position
+      let block = new Block(this, config.width - 10, randomY, 'rock', -100);
+      block.getBounds();
+      block.setBodySize(block.width / 2, block.height / 2, block.width / 4, block.height / 4);
+  
+      this.blockgroup.add(block);
+  }
+  
+  addlettuce() {
+      // Set Y boundaries
+      const minY = 280;
+      const maxY = 430;
+  
+      // Generate a random Y position within the range
+      let randomY = Phaser.Math.Between(minY, maxY);
+  
+      // Spawn the lettuce at the random Y position
+      let lettuce = new Lettuce(this, config.width - 10, randomY, 'weed', -90);
+      lettuce.getBounds();
+      lettuce.setBodySize(lettuce.width / 2, lettuce.height / 2, lettuce.width / 4, lettuce.height / 4);
+  
+      this.lettucegroup.add(lettuce);
+  }
+  
+  addpolice() {
+      // Set Y boundaries
+      const minY = 280;
+      const maxY = 430;
+  
+      // Generate a random Y position within the range
+      let randomY = Phaser.Math.Between(minY, maxY);
+  
+      // Spawn the police at the random Y position
+      let police = new Police(this, config.width - 10, randomY, 'police', -100);
+      police.getBounds();
+      police.setBodySize(police.width / 3, police.height / 3, police.width / 4, police.height / 4);
+  
+      this.policegroup.add(police);
+  }
 
 
 
