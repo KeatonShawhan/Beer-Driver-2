@@ -22,6 +22,10 @@ class Water extends Phaser.Physics.Arcade.Sprite{
 
         if (this.x < this.width){
             this.destroy();
+            //lower fog intensity
+            if (this.parentScene.fog.intensity > 0.1){
+                this.parentScene.fog.decreaseFog();
+            }
         }
 
 
