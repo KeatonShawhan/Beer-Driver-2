@@ -19,7 +19,7 @@ class Play extends Phaser.Scene {
         this.load.audio('damage', ['./assets/hurt.mp3']);
         this.load.audio('popodamage' , ['./assets/policehit.mp3'])
         this.load.audio('death' , ['./assets/death.mp3'])
-
+        this.load.image('fog', './assets/secondFog.png');
         this.load.image('prebar', './assets/basicbar.png');
         this.load.image('postbar', './assets/filledbar.png');
 
@@ -239,10 +239,55 @@ class Play extends Phaser.Scene {
         this.cameras.main.scrollX += Phaser.Math.Between(-5, 5);
         this.cameras.main.scrollY += Phaser.Math.Between(-3, 3);
     });
-    
+
+    this.remainingTime = 60;
+
+        // Add countdown timer display
+        let timerConfig = {
+            fontFamily: 'Ancient Modern Tales',
+            fontSize: '30px',
+            color: '#a9ed69',
+            align: 'center',
+        };
+        this.timerText = this.add.text(config.width / 2, config.height / 15, `Time: ${this.remainingTime}`, timerConfig).setOrigin(0.5);
+
+        // Create a timed event that updates every second
+        this.time.addEvent({
+            delay: 1000, // 1 second
+            callback: this.updateTimer,
+            callbackScope: this,
+            loop: true
+        });
+
+        // (rest of your setup as before, including the BEER ME button, etc.)...
+
+
         
     }
+    updateTimer() {
+        // Decrement the time
+        this.remainingTime--;
 
+        // Update the timer display
+        this.timerText.setText(`Time: ${this.remainingTime}`);
+
+        // Check if the time has run out
+        if (this.remainingTime <= 0) {
+            this.endGame();
+        }
+    }
+
+    endGame() {
+        // End the game, stop sounds, etc.
+        this.gameover = true;
+        this.bgm.stop();
+        this.deathm.play();
+
+        // Start the game over or end screen, pass any necessary data
+        this.scene.start('gameOverScene', { beers: this.beers });
+    }
+
+    
 
     update() {
         if (this.gameover) {
