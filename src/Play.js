@@ -99,7 +99,7 @@ class Play extends Phaser.Scene {
             runChildUpdate: true
         })
 
-        this.time.delayedCall(2500, () => {
+        this.time.delayedCall(1500, () => {
             this.addblock();
         });
 
@@ -116,9 +116,6 @@ class Play extends Phaser.Scene {
             loop: true, 
         });
 
-        this.time.delayedCall(2500, () => {
-            this.addwater();
-        });
         this.playerHealth = 3;
         this.gameover = false;
         this.healthbar = this.add.sprite(80, 35, 'hearts');
@@ -191,15 +188,15 @@ class Play extends Phaser.Scene {
         this.playerscore = 0;
         this.scoredup = 0;
 
-        this.scoreDisplay = this.add.text(config.width/1.2, config.height/12, "Beers: 0" , scoreConfig);
+        // this.scoreDisplay = this.add.text(config.width/1.2, config.height/12, "Beers: 0" , scoreConfig);
         if (this.playerscore == 1){
             console.log("heyy");
         }
 
        
-        this.dizzinessLevel = 0;
+        this.dizzinessLevel = 6;
         this.beers = 0;
-        this.dizzinessWobble = 0; // Tracks the sway angle
+        this.dizzinessWobble = 3; // Tracks the sway angle
         
         // Set up a looping tween for the wobble
         this.wobbleTween = this.tweens.add({
@@ -214,33 +211,8 @@ class Play extends Phaser.Scene {
             this.fog = new Fog(this, 0, 0, config.width, config.height);
         }
         
-
-      //add button that says BEER ME
-    
        
-
-      let beerMeButton = this.add.text(config.width / 2, config.height / 2, "BEER ME", scoreConfig).setOrigin(0.5);
-      //everytime you press the button, the console prints "BEER ME"
-      beerMeButton.setInteractive({ useHandCursor: true })
-      beerMeButton.on('pointerdown', () => {
-        console.log("BEER ME");
-        this.fog.increaseFog();
-    
-        // Increase dizziness level
-        this.dizzinessLevel++;
-        this.beers ++;
-        this.scoreDisplay.text = ("Beers: " +this.beers);
-
-        // Intensify wobble angle and camera shake with each press
-        this.cameras.main.shake(100, 0.005 * this.dizzinessLevel); // Slight shake
-        this.wobbleTween.timeScale = 1 + (this.dizzinessLevel * 0.1); // Increase wobble speed
-    
-        // Add blur effect by adjusting zoom and slight offset
-        this.cameras.main.scrollX += Phaser.Math.Between(-5, 5);
-        this.cameras.main.scrollY += Phaser.Math.Between(-3, 3);
-    });
-
-    this.remainingTime = 60;
+        this.remainingTime = 60;
 
         // Add countdown timer display
         let timerConfig = {
@@ -297,23 +269,16 @@ class Play extends Phaser.Scene {
     
         if (!this.gameover) {
             // Handle devil movement with 2x:1y ratio
-    
-
-            if (this.dizzinessLevel > 0) {
-                // Random drift effect, scaling with dizziness level
-                const temp = Phaser.Math.Between(-1, 1) * this.dizzinessLevel * 0.3;
-                this.car.x += Phaser.Math.Between(-1, 1) * this.dizzinessLevel * 0.3;
-                // Update car.y with temp, but ensure it stays within 280 and 430
-                this.car.y = Phaser.Math.Clamp(this.car.y + temp, 280, 430);
-                
             
-                // Add a slight delay in response to user input for a 'laggy' feel
-                if (keyUP.isDown && Phaser.Math.FloatBetween(0, 1) < 0.95) { // Random chance to not respond
-                    this.car.y = Phaser.Math.Clamp(this.car.y - 2, 280, 430);
-                } else if (keyDOWN.isDown && Phaser.Math.FloatBetween(0, 1) < 0.95) {
-                    this.car.y = Phaser.Math.Clamp(this.car.y + 2, 280, 430);
-                }
-            }
+
+                
+            this.blockgroup.getChildren().forEach(block => {
+                const driftX = Phaser.Math.Between(-1, 1) * this.dizzinessLevel * 0.2;
+                const driftY = Phaser.Math.Between(-1, 1) * this.dizzinessLevel * 0.2;
+                block.x += Phaser.Math.Between(-driftX, driftX);
+                block.y = Phaser.Math.Clamp(block.y + driftY, 280, 430); // Ensure blocks stay within bounds
+                block.x -= 1*(60/this.remainingTime);
+            });
             
             this.car.update();
             this.physics.world.collide(this.car, this.blockgroup, this.blockcollision, null, this);
@@ -335,6 +300,8 @@ class Play extends Phaser.Scene {
       
       // Spawn the block at the random Y position
       let block = new Block(this, config.width - 10, randomY, 'car', -100);
+      block.angle = 180;
+      block.setFlipY(true);
       block.getBounds();
       block.setBodySize(block.width, block.height, block.width / 4, block.height / 4);
       let randomTint = Phaser.Display.Color.RandomRGB().color;
@@ -343,22 +310,7 @@ class Play extends Phaser.Scene {
 
       this.blockgroup.add(block);
   }
-  
-  addwater() {
-      // Set Y boundaries
-      const minY = 280;
-      const maxY = 430;
-  
-      // Generate a random Y position within the range
-      let randomY = Phaser.Math.Between(minY, maxY);
-  
-      // Spawn the water at the random Y position
-      let water = new Water(this, config.width - 10, randomY, 'water', -90);
-      water.getBounds();
-      water.setBodySize(water.width / 2, water.height / 2, water.width / 4, water.height / 4);
-  
-      this.watergroup.add(water);
-  }
+
   
   addpolice() {
       // Set Y boundaries
@@ -413,34 +365,5 @@ class Play extends Phaser.Scene {
             police.destroy();
     }
 }
-
-    watercollision(player, water){
-        water.destroy();
-        this.fog.decreaseFog();
-        this.pickupm.play();
-        this.scoredup+=water.score;
-        this.playerscore+=water.score;
-        const maxPoints = 10; 
-        const maskWidth = (this.playerscore / maxPoints) * this.filledBar.width; // Calculate the mask width
-
-        this.mask.clear();
-        this.mask.fillStyle(0xffffff); // Set the mask color (white)
-        this.mask.fillRect(0, 0, maskWidth, this.filledBar.height);
-        this.dizzinessLevel -= .5;
-        this.dizzinessWobble -= .5;
-        if (this.playerscore >= maxPoints && this.playerHealth != 3 ){
-            console.log("we are here baby");
-            this.playerHealth++;
-            this.playerscore=1;
-            this.mask.clear()
-        }
-
-        console.log("smoke za");
-        
-
-
-    }
-
-
 
 }
